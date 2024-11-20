@@ -33,7 +33,7 @@ jobs:
         run: |
           sleep 10  # Give the backend a moment to start
           BACKEND_CONTAINER=$(docker-compose ps -q backend)  # Get the container ID of the backend service
-          docker exec $BACKEND_CONTAINER curl -f http://localhost:5000/health || exit 1  # Test if backend is working
+          docker exec $BACKEND_CONTAINER curl -f http://localhost:5000/api/data || exit 1  # Test if backend is working
 
       - name: Test MySQL container
         run: |
