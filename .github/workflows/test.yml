@@ -1,0 +1,83 @@
+name: Build and Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+
+      - name: Set up environment variables
+        run: echo "MYSQL_ROOT_PASSWORD=${{ secrets."MYSQL_ROOT_PASSWORD }}" >> $GITHUB_ENV
+        
+      - name: Build and start the services
+        run: docker-compose up -d --build
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD}}
+
+      - name: Test app
+        run: |
+          sleep 10
+          curl -f http://localhost:8080 || exit 1
+
+      - name: Destroy the environment
+        run: docker-compose down -v
+
+
+
+
+#  deploy:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+
+#      - name: Set up AWS CLI
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: us-west-2
+
+#      - name: Fetch DB password from AWS Secrets Manager
+#        run: |
+#          export DB_PASSWORD=$(aws secretsmanager get-secret-value --secret-id db_password --query SecretString --output text)
+#          echo "$DB_PASSWORD" | docker secret create db_password -
+        
+#      - name: Deploy containers with Docker Compose
+#        run: docker-compose -f docker-compose.prod.yml up -d
+
+# ========= OR ==========
+#  deploy:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+
+#      - name: Set up Docker
+#        uses: docker/setup-buildx-action@v2
+
+#      - name: Set up Docker Secrets from GitHub Secrets
+#        run: |
+#          echo "$DB_PASSWORD" | docker secret create db_password -
+#        env:
+#          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}  # Inject the GitHub secret as an env var
+
+#      - name: Deploy containers with Docker Compose
+#        run: docker-compose -f docker-compose.prod.yml up -d
+
+
+      
+
+

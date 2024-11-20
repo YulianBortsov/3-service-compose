@@ -24,7 +24,7 @@ services:
     environment:
       - DATABASE_HOST=mysql_container
       - DATABASE_USER=root
-      - DATABASE_PASSWORD=dbpass123
+      - DATABASE_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - DATABASE_NAME=appdb
     depends_on:
       - mysql_container
@@ -35,7 +35,7 @@ services:
   mysql_container:
     image: mysql:5.7
     environment:
-      - MYSQL_ROOT_PASSWORD=dbpass123
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=appdb
     volumes:
       - mysql_data:/var/lib/mysql
