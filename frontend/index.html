@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frontend</title>
+  <script>
+    async function fetchBackendData() {
+      const response = await fetch('/api/data');
+      const data = await response.json();
+      document.getElementById('data').textContent = JSON.stringify(data);
+    }
+    window.onload = fetchBackendData;
+  </script>
+</head>
+<body>
+  <h1>Welcome to the Frontend</h1>
+  <p>Data from the backend:</p>
+  <pre id="data">Loading...</pre>
+</body>
+</html>
