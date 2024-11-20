@@ -17,7 +17,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y docker-compose
 
       - name: Set up environment variables
-        run: echo "MYSQL_ROOT_PASSWORD=${{ secrets."MYSQL_ROOT_PASSWORD }}" >> $GITHUB_ENV
+        run: echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> $GITHUB_ENV
         
       - name: Build and start the services
         run: docker-compose up -d --build
