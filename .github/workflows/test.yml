@@ -139,7 +139,7 @@ jobs:
           export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
           export AWS_DEFAULT_REGION=us-east-1
 
-          aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
 
           echo "export MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> ~/.bashrc
           echo "export ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" >> ~/.bashrc
