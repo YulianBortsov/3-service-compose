@@ -135,6 +135,8 @@ jobs:
           sudo yum install git -y 
           git clone https://github.com/${{ github.repository }}.git
 
+          aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+
           echo "export MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> ~/.bashrc
           echo "export ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" >> ~/.bashrc
           source ~/.bashrc
