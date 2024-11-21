@@ -76,34 +76,34 @@ jobs:
         run: |
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/3-service/backend:latest
 
-      - name: Filter and keep the latest two images
-        run: |
-          # Get the list of image digests
-          IMAGE_DIGESTS=$(aws ecr list-images --repository-name 3-service/backend --query 'imageDetails | sort_by(@, &imagePushedAt) | reverse(@) | [].imageDigest' --output text)
-    
-          # Convert the digests into an array
-          DIGEST_ARRAY=($IMAGE_DIGESTS)
-    
-          # Get the number of digests
-          DIGEST_COUNT=${#DIGEST_ARRAY[@]}
-    
-          # If there are more than 2 images, delete the older ones
-          if [ $DIGEST_COUNT -gt 2 ]; then
-            # Get the list of digests to delete (everything except the latest two)
-            DIGESTS_TO_DELETE="${DIGEST_ARRAY[@]:2}"
-      
-            # Delete the older images
-            for DIGEST in $DIGESTS_TO_DELETE; do
-              echo "Deleting image with digest: $DIGEST"
-              aws ecr batch-delete-image --repository-name 3-service/backend --image-ids imageDigest=$DIGEST
-            done
-          else
-            echo "No images to delete, keeping all images."
-          fi
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
+      #- name: Filter and keep the latest two images
+      #  run: |
+      #    # Get the list of image digests
+      #    IMAGE_DIGESTS=$(aws ecr list-images --repository-name 3-service/backend --query 'imageDetails | sort_by(@, &imagePushedAt) | reverse(@) | [].imageDigest' --output text)
+    #
+      #    # Convert the digests into an array
+      #    DIGEST_ARRAY=($IMAGE_DIGESTS)
+    #
+      #    # Get the number of digests
+      #    DIGEST_COUNT=${#DIGEST_ARRAY[@]}
+    #
+      #    # If there are more than 2 images, delete the older ones
+      #    if [ $DIGEST_COUNT -gt 2 ]; then
+      #      # Get the list of digests to delete (everything except the latest two)
+      #      DIGESTS_TO_DELETE="${DIGEST_ARRAY[@]:2}"
+      #
+      #      # Delete the older images
+      #      for DIGEST in $DIGESTS_TO_DELETE; do
+      #        echo "Deleting image with digest: $DIGEST"
+      #        aws ecr batch-delete-image --repository-name 3-service/backend --image-ids imageDigest=$DIGEST
+      #      done
+      #    else
+      #      echo "No images to delete, keeping all images."
+      #    fi
+      #  env:
+      #    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #    AWS_REGION: us-east-1
 
   deploy_to_ec2:
     runs-on: ubuntu-latest
