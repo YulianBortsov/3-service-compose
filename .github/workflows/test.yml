@@ -132,13 +132,13 @@ jobs:
           docker-compose --version
 
           cd /home/ec2-user
+          sudo yum install git -y 
           git clone https://github.com/${{ github.repository }}.git
-          cd $(basename "$PWD")
 
           echo "export MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> ~/.bashrc
           echo "export ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" >> ~/.bashrc
           source ~/.bashrc
-          
+          cd ~/3-service-compose/
           docker-compose -f docker-compose-deploy.yml up -d
 
           EOF
