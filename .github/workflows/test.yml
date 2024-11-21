@@ -79,7 +79,7 @@ jobs:
       - name: Filter and keep the latest two images
         run: |
           # Get the list of image digests
-          IMAGE_DIGESTS=$(aws ecr list-images --repository-name 3-service/backend --query 'imageIds[*].imageDigest' --output text)
+          IMAGE_DIGESTS=$(aws ecr list-images --repository-name 3-service/backend --query 'imageDetails | sort_by(@, &imagePushedAt) | reverse(@) | [].imageDigest' --output text)
     
           # Convert the digests into an array
           DIGEST_ARRAY=($IMAGE_DIGESTS)
@@ -111,6 +111,7 @@ jobs:
     steps:
       - name: Set up SSH key 
         run: |
+          mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2-key.pem
           chmod 600 ~/.ssh/ec2-key.pem
           ssh-keyscan -t rsa ${{ secrets.EC2_IP }} >> ~/.ssh/known_hosts
