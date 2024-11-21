@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Test and
 on:
   push:
     branches:
@@ -6,6 +6,7 @@ on:
   pull_request:
     branches:
       - main
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -22,7 +23,7 @@ jobs:
       - name: Build and start the services
         run: docker-compose up -d --build
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD}}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
 
       - name: Test app
         run: |
@@ -33,13 +34,13 @@ jobs:
         run: |
           sleep 10  # Give the backend a moment to start
           BACKEND_CONTAINER=$(docker-compose ps -q backend)  # Get the container ID of the backend service
-          docker exec $BACKEND_CONTAINER curl -f http://localhost:5000/api/data || exit 1  # Test if backend is working
+          docker exec $BACKEND_CONTAINER curl -f http://localhost:5000/api/data || exit 1
 
       - name: Test MySQL container
         run: |
           sleep 10  # Wait a moment for MySQL to start
           MYSQL_CONTAINER=$(docker-compose ps -q mysql_container)  # Get the container ID of the MySQL service
-          docker exec $MYSQL_CONTAINER mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "SHOW DATABASES;" || exit 1  # Check if the database is accessible
+          docker exec $MYSQL_CONTAINER mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "SHOW DATABASES;" || exit 1
           
 
 
