@@ -1,0 +1,60 @@
+name: Test the containers and push the backend image to ECR
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Docker Compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+      - name: Set up env root pass
+        run: echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> $GITHUB_ENV
+      - name: Build the environment
+        run: docker-compose up -d
+      - name: Wait for the containers to load 
+        run: sleep 10
+      - name: Test the frontend
+        run: curl -f http://localhost:8080 || exit 1
+      - name: Test the backend 
+        run: |
+          BACKEND_CONTAINER=$(docker-compose ps -q backend)
+          docker exec $BACKEND_CONTAINER curl -f http://localhost:5000/api/data || exit 1
+      - name: Test the db 
+        run: |
+          MYSQL_CONTAINER=$(docker-compose ps -q mysql_container)
+          docker exec $MYSQL_CONTAINER mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "SHOW DATABASES;" || exit 1
+      - name: Cleanup
+        run: docker-compose down -v 
+  push_backend_ecr:
+    runs-on: ubuntu-latest
+    needs: test
+    env: 
+      AWS_REGION: us-east-1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: AWS Configure 
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build, Tag, and Push the backend image
+        env: 
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: 3-service/backend
+          IMAGE_TAG: ${{ github.sha}}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ./backend
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
